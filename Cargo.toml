@@ -1,7 +1,10 @@
-[package]
+﻿[package]
 name = "runo-scanner"
 version = "0.1.0"
 edition = "2021"
+description = "Scans a directory tree and lists projects (repos/domains) by marker files; incremental via mtime cache"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/aon-co-jp/runo-scanner"
 
 [dependencies]
 walkdir = "2"
@@ -10,3 +13,4 @@ serde = { version = "1", features = ["derive"] }
 toml = "0.8"
 regex = "1"
 serde_json = "1"
+

@@ -391,3 +391,52 @@ fn main() {
         update_ecosystem_map(&root, &projects);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn res() -> (Regex, Regex) {
+        (
+            Regex::new(r"^[A-Za-z0-9]+(-[A-Za-z0-9]+)*$").unwrap(),
+            Regex::new(r"^[a-z0-9-]+\.[a-z]{2,}$").unwrap(),
+        )
+    }
+
+    #[test]
+    fn classify_distinguishes_repo_and_domain() {
+        let (repo, domain) = res();
+        assert_eq!(classify("open-web-server", &repo, &domain), Some("repo"));
+        assert_eq!(classify("RS-Git", &repo, &domain), Some("repo"));
+        assert_eq!(classify("aon.tokyo", &repo, &domain), Some("domain"));
+        assert_eq!(classify("not a name!", &repo, &domain), None);
+    }
+
+    #[test]
+    fn truncate_desc_keeps_short_and_cuts_long() {
+        assert_eq!(truncate_desc("  short  "), "short");
+        let long = "あ".repeat(100);
+        let out = truncate_desc(&long);
+        assert_eq!(out.chars().count(), 61);
+        assert!(out.ends_with('…'));
+    }
+
+    #[test]
+    fn find_marker_returns_first_matching_marker() {
+        let dir = std::env::temp_dir().join(format!("runo-scanner-test-{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+        fs::write(dir.join("package.json"), "{}").unwrap();
+        let markers = vec!["Cargo.toml".to_string(), "package.json".to_string()];
+        assert_eq!(find_marker(&dir, &markers), Some("package.json".to_string()));
+        assert_eq!(find_marker(&dir, &["nope".to_string()]), None);
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn example_config_parses() {
+        let text = include_str!("../runo-scan.example.txt");
+        let cfg: Config = toml::from_str(text).expect("example config must parse");
+        assert!(cfg.max_depth > 0);
+        assert!(cfg.project_markers.contains(&"Cargo.toml".to_string()));
+    }
+}

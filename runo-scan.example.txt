@@ -1,0 +1,32 @@
+# runo-scan.txt
+# open-runo プロジェクト自動認識スキャナの設定ファイル
+# 隠しファイルにしないため拡張子は .txt にしているが、中身は TOML 形式
+
+# 探索する階層数の上限。無制限に潜らない
+max_depth = 6
+
+# ここに書いたディレクトリ名に一致したら、その配下には一切潜らない
+exclude_dirs = [
+  "node_modules", ".git", "target", "dist", "build",
+  "$RECYCLE.BIN", "System Volume Information"
+]
+
+# 以下のマーカーファイルが見つかった時点で「そのディレクトリはプロジェクトルート」と確定し、
+# それ以上その配下(node_modules など)には潜らない
+project_markers = ["Cargo.toml", "package.json", ".runo-project"]
+
+# プロジェクト名の見分け方
+# - repo_name_pattern:   open-web-ser のようなリポジトリ/プロジェクト名(ケバブケース、ドット無し)
+# - domain_name_pattern: aon.tokyo のようなドメイン名(ドット区切り、TLD付き)
+# どちらのパターンに一致するかで project_kind ("repo" / "domain") を判定する
+[naming]
+# 大文字始まりのRust系リポジトリ名(RCosmo, RS-Git, RPoem等)も repo として
+# 拾えるよう、英数字ケバブケース全般を許容する(大文字小文字は区別しない)
+repo_name_pattern   = '^[A-Za-z0-9]+(-[A-Za-z0-9]+)*$'
+domain_name_pattern = '^[a-z0-9-]+\.[a-z]{2,}$'
+
+# インデックスキャッシュ
+# 初回フルスキャン結果をここに保存し、次回以降は mtime(更新日時)が変わった
+# ディレクトリだけ再スキャンする差分更新にする
+[cache]
+index_file = "runo-scan-cache.json"

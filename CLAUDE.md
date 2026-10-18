@@ -33,3 +33,6 @@ GitHubリポジトリ: [aon-co-jp/runo-scanner](https://github.com/aon-co-jp/run
   ドキュメントが一切無かった(実装〈`src/main.rs`〉のみ)。エコシステム
   全体のドキュメント整備の一環として作成、他リポジトリへの復旧ポイント
   導線を追加。
+
+- **2026-10-18 v0.1.0���J**: �P�̃e�X�g4���E�ݒ��(runo-scan.example.txt)�E���pREADME�ELICENSE(Apache-2.0 OR MIT)��ǉ��A�S�����̋@��������Ƀ��|�W�g�������J�AWindows�Ńo�C�i���t��Release�B
+

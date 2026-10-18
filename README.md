@@ -1,33 +1,37 @@
-# runo-scanner
+﻿# runo-scanner
 
-`F:\runo`配下の全プロジェクトを自動認識するための、Rust製スキャナー。
-[open-raid-z](https://github.com/aon-co-jp/open-raid-z)配下の
-`runo-scan.txt`(TOML形式のスキャンルール: 探索深度・除外ディレクトリ・
-プロジェクト判定マーカー・リポジトリ名/ドメイン名の判定パターン・
-キャッシュ設定)を読み込み、`F:\runo`を再帰的にスキャンして
-プロジェクト一覧(パス・種別・マーカー)を出力する。
+ディレクトリ配下を再帰的にスキャンし、プロジェクト(リポジトリ/ドメイン名のフォルダ)の一覧をJSONで出力するRust製CLI。
+`Cargo.toml` などのマーカーファイルでプロジェクトルートを判定し、前回から更新日時が変わっていないフォルダは再スキャンを省きます(差分更新)。
 
-## 使い方
+A Rust CLI that recursively scans a directory tree and prints the list of projects (repo / domain-named folders) as JSON.
+A folder containing a marker file (e.g. `Cargo.toml`) is treated as a project root; folders whose modification time has not changed since the last run are skipped (incremental cache).
+
+## 使い方 / Usage
 
 ```bash
-cargo run --release -- <runo-scan.txtへのパス> <スキャン対象ディレクトリ>
+cargo run --release -- <スキャン対象ディレクトリ / root> [設定ファイル / config] [--update-ecosystem-map]
 ```
 
-前回スキャン時のディレクトリ更新時刻をキャッシュ(`cache.index_file`で
-指定したJSONファイル)に保持し、変更の無いディレクトリは再スキャンを
-スキップすることで高速化している。
+- 設定ファイルを省略すると `<root>/runo-scan.txt` を読みます。同梱の [`runo-scan.example.txt`](runo-scan.example.txt)(TOML形式)をコピーして編集してください。
+  If the config is omitted, `<root>/runo-scan.txt` is read. Copy and edit the bundled [`runo-scan.example.txt`](runo-scan.example.txt) (TOML).
+- 結果は標準出力にJSON(`path` / `kind` / `marker`)で出力され、キャッシュは設定の `cache.index_file` に保存されます。
+  Results are printed as JSON (`path` / `kind` / `marker`); the cache is stored in `cache.index_file`.
+- `--update-ecosystem-map` は、`<root>/open-raid-z/CLAUDE.md` の「## 関連プロジェクト」節に未掲載のリポジトリを自動生成ブロックとして追記します(実行前に `CLAUDE.md.bak` を作成)。該当ファイルが無ければ何もしません。通常は不要なオプションです。
+  `--update-ecosystem-map` appends repos missing from the "## 関連プロジェクト" section of `<root>/open-raid-z/CLAUDE.md` (a `CLAUDE.md.bak` backup is written first; it does nothing if the file is absent). Most users do not need it.
 
-## エコシステムでの位置づけ
+## 制約 / Limitations
 
-このリポジトリ単体では完結せず、常に`open-raid-z`側の`runo-scan.txt`と
-セットで使う。設定ファイルの仕様変更時は両リポジトリを同時に確認する
-こと。
+- キャッシュはフォルダの更新日時のみを見ます。内容のハッシュ検証はしません。 / The cache only compares folder modification times, not content hashes.
+- 設定ファイルの `max_depth` を超える深さは探索しません。 / Folders deeper than `max_depth` are not scanned.
 
-## 復旧ポイント(どのリポジトリからでも作業を再開できるように)
+## テスト / Tests
 
-このエコシステムは複数リポジトリにまたがって開発されている。開発方針・
-運用ルール・全プロジェクトの現況・直近のセッションチェックポイントは
-[`open-raid-z`の`CLAUDE.md`](https://github.com/aon-co-jp/open-raid-z/blob/main/CLAUDE.md)
-を正本として一元管理している。**このリポジトリから作業を再開する場合も、
-まず`open-raid-z/CLAUDE.md`のHANDOFF節(特に「セッション末尾
-チェックポイント」)を読んでから着手すること**。
+```bash
+cargo test
+```
+
+## ライセンス / License
+
+Apache-2.0 または MIT(どちらか選択)。 / Apache-2.0 OR MIT, at your option. See `LICENSE-APACHE`, `LICENSE-MIT`.
+
+[open-raid-z](https://github.com/aon-co-jp/open-raid-z) を中心とする aon-co-jp エコシステムの一部です。 / Part of the aon-co-jp ecosystem.
