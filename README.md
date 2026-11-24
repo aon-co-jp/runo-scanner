@@ -1,3 +1,5 @@
+> Latest translations / 翻訳の最新版: [0-LATEST-TRANSLATIONS.md](0-LATEST-TRANSLATIONS.md)
+
 # runo-scanner
 
 ディレクトリ配下を再帰的にスキャンし、プロジェクト(リポジトリ/ドメイン名のフォルダ)の一覧をJSONで出力するRust製CLI。
